@@ -1,11 +1,11 @@
 HƯỚNG DẪN SỬ DỤNG TRƯỚC KHI DÙNG
 Mở teminal chạy :
 ***GOLANG****
-cd backend
+cd backend-
 go mod tidy // tải tất cả package cần thiết
 chạy bằng lệnh go run ./cmd/main.go
 ***REACT***
-cd frontend
+cd frontend-
 npm install //để cài các thư viện đang dùng
 chạy bằng lệnh npm run dev
 
@@ -129,4 +129,5 @@ CREATE TABLE repair_history (
 
 INSERT INTO repair_history VALUES
 (1,'2025-08-18','Trục máy bị hỏng vòng bi làm máy chạy bị đao',500000.00,2,'2025-08-17 10:49:57',1);
+
 
