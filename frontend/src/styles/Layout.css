@@ -1,0 +1,11 @@
+.content-wrapper {
+  display: flex;
+  height: calc(100vh - 60px - 50px); /* header + footer */
+}
+
+.main-content {
+  flex-grow: 1;
+  background-color: white;
+  padding: 20px;
+  overflow-y: auto;
+}
