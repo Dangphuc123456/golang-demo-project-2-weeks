@@ -181,7 +181,6 @@ export default function MaintenanceListPage() {
         </thead>
         <tbody>
           {currentItems.length === 0 ? (
-            // placeholder row để giữ khung
             <tr>
               <td>-</td>
               <td>-</td>

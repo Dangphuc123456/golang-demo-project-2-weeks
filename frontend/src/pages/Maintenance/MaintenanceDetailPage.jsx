@@ -56,7 +56,15 @@ export default function MaintenanceDetailPage() {
     }
     fetchData();
   }, [id]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const indexOfLastRecord = currentPage * rowsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - rowsPerPage;
+  const currentRecords = Array.isArray(history)
+    ? history.slice(indexOfFirstRecord, indexOfLastRecord)
+    : [];
+  const totalPages = Math.max(1, Math.ceil((history?.length || 0) / rowsPerPage));
 
   const openAddModal = () => {
     setEditMode(false);
@@ -228,14 +236,14 @@ export default function MaintenanceDetailPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {history.length === 0 ? (
+                  {currentRecords.length === 0 ? (
                     <tr>
                       <td colSpan="5" className="text-center text-muted">
                         Chưa có lịch sử bảo trì
                       </td>
                     </tr>
                   ) : (
-                    history.map((h) => (
+                    currentRecords.map((h) => (
                       <tr key={h.id}>
                         <td>{new Date(h.repair_date).toLocaleDateString("vi-VN")}</td>
                         <td
@@ -257,7 +265,13 @@ export default function MaintenanceDetailPage() {
                             "Chưa phân công"}
                         </td>
                         <td style={{ padding: 12, textAlign: "center" }}>
-                          <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "8px",
+                              justifyContent: "center",
+                            }}
+                          >
                             <button
                               className="btn btn-sm btn-warning"
                               onClick={() => openEditModal(h)}
@@ -285,6 +299,65 @@ export default function MaintenanceDetailPage() {
                   style={{ zIndex: 9999 }}
                 />
               ))}
+            </div>
+            {/* Pagination dưới bảng */}
+            <div className="d-flex justify-content-end align-items-center mt-2">
+              {/* Dropdown chọn số dòng */}
+              <div className="d-flex align-items-center">
+                <label className="me-2">Hiển thị</label>
+                <select
+                  value={rowsPerPage}
+                  onChange={(e) => {
+                    setRowsPerPage(Number(e.target.value));
+                    setCurrentPage(1); // reset về trang 1 khi đổi số dòng
+                  }}
+                  className="form-select d-inline-block"
+                  style={{ width: "auto" }}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                </select>
+                <span className="ms-2">
+                  bản ghi / trang. Tổng {totalPages} trang ({history?.length || 0} bản ghi)
+                </span>
+              </div>
+
+              {/* Nút phân trang */}
+              <nav className="ms-3">
+                <ul className="pagination mb-0">
+                  <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    >
+                      «
+                    </button>
+                  </li>
+
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <li
+                      key={page}
+                      className={`page-item ${page === currentPage ? "active" : ""}`}
+                    >
+                      <button className="page-link" onClick={() => setCurrentPage(page)}>
+                        {page}
+                      </button>
+                    </li>
+                  ))}
+
+                  <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                    <button
+                      className="page-link"
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                      }
+                    >
+                      »
+                    </button>
+                  </li>
+                </ul>
+              </nav>
             </div>
           </div>
         </div>

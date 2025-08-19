@@ -111,42 +111,42 @@ export default function EquipmentsPage() {
   }
 
   async function handleSubmit(e) {
-  e.preventDefault();
-  setError(null);
-  try {
-    const payload = {
-      name: formData.name,
-      price: parseFloat(formData.price),
-      status: formData.status,
-      supplier_id: formData.supplier_id ? Number(formData.supplier_id) : null,
-      purchase_date: formData.purchase_date ? new Date(formData.purchase_date).toISOString() : null,
-    };
+    e.preventDefault();
+    setError(null);
+    try {
+      const payload = {
+        name: formData.name,
+        price: parseFloat(formData.price),
+        status: formData.status,
+        supplier_id: formData.supplier_id ? Number(formData.supplier_id) : null,
+        purchase_date: formData.purchase_date ? new Date(formData.purchase_date).toISOString() : null,
+      };
 
-    if (isEditing) {
-      await updateEquipment(currentEquipment.id, payload);
-      setShowModal(false); // đóng modal trước
-      toast.success(`Cập nhật thiết bị #${currentEquipment.id} thành công`);
-    } else {
-      await createEquipment(payload);
-      setShowModal(false);
-      toast.success("Thêm thiết bị mới thành công");
-    }
+      if (isEditing) {
+        await updateEquipment(currentEquipment.id, payload);
+        setShowModal(false); // đóng modal trước
+        toast.success(`Cập nhật thiết bị #${currentEquipment.id} thành công`);
+      } else {
+        await createEquipment(payload);
+        setShowModal(false);
+        toast.success("Thêm thiết bị mới thành công");
+      }
 
-    // Load lại dữ liệu sau 300ms để toast hiển thị ổn định
-    setTimeout(() => {
-      loadEquipments();
-    }, 300);
-  } catch (err) {
-    if (err.response && err.response.data && err.response.data.message) {
-      setError(err.response.data.message);
-      toast.error(err.response.data.message);
-    } else {
-      const msg = err.message || "Lỗi thao tác";
-      setError(msg);
-      toast.error(msg);
+      // Load lại dữ liệu sau 300ms để toast hiển thị ổn định
+      setTimeout(() => {
+        loadEquipments();
+      }, 300);
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+        toast.error(err.response.data.message);
+      } else {
+        const msg = err.message || "Lỗi thao tác";
+        setError(msg);
+        toast.error(msg);
+      }
     }
   }
-}
   function openDeleteModal(eq) {
     setCurrentEquipment(eq);
     setShowDeleteModal(true);

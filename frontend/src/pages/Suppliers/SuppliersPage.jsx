@@ -38,7 +38,6 @@ export default function SuppliersPage() {
                 // defensive: ensure array
                 setSuppliers(Array.isArray(data) ? data : []);
             } catch (err) {
-                // nếu err không có .message thì stringify
                 setError(err?.message || String(err));
                 setSuppliers([]);
             } finally {
@@ -49,7 +48,6 @@ export default function SuppliersPage() {
         fetchSuppliers();
     }, []);
 
-    // ensure currentPage valid whenever suppliers or itemsPerPage change
     useEffect(() => {
         const totalPages = Math.max(1, Math.ceil((suppliers?.length || 0) / itemsPerPage));
         if (currentPage > totalPages) setCurrentPage(totalPages);
@@ -125,7 +123,6 @@ export default function SuppliersPage() {
         }
     }
 
-    // safe lengths & paging
     const totalPages = Math.max(1, Math.ceil((suppliers?.length || 0) / itemsPerPage));
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;

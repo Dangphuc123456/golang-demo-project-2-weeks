@@ -110,7 +110,7 @@ export default function MaintenancePage() {
 
   const handleDelete = async () => {
     try {
-      await deleteRepairHistory(currentHistory.id); 
+      await deleteRepairHistory(currentHistory.id);
       toast.success("Xóa thành công!");
       setShowDeleteModal(false);
       const refreshed = await getRepairHistory();
@@ -131,7 +131,7 @@ export default function MaintenancePage() {
 
   return (
     <div>
-      <ToastContainer />
+      <ToastContainer position="top-right" autoClose={3000} />
       <h4>Lịch sử bảo trì</h4>
       <table className="table table-striped table-hover mt-3">
         <thead className="table-dark">
@@ -172,6 +172,42 @@ export default function MaintenancePage() {
           )}
         </tbody>
       </table>
+      {/* Phân trang */}
+      <div className="d-flex justify-content-end align-items-center mt-3">
+        <div className="me-3 d-flex align-items-center">
+          <label className="me-2">Hiển thị</label>
+          <select
+            className="form-select"
+            style={{ width: "auto" }}
+            value={rowsPerPage}
+            onChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setCurrentPage(1); }}
+          >
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+          </select>
+          <span className="ms-2">bản ghi / trang</span>
+        </div>
+        <nav>
+          <ul className="pagination mb-0">
+            <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+              <button className="page-link" onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}>
+                &laquo;
+              </button>
+            </li>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <li key={i} className={`page-item ${currentPage === i + 1 ? "active" : ""}`}>
+                <button className="page-link" onClick={() => setCurrentPage(i + 1)}>{i + 1}</button>
+              </li>
+            ))}
+            <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+              <button className="page-link" onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}>
+                &raquo;
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
 
       {/* Modal Sửa */}
       {showModal && (

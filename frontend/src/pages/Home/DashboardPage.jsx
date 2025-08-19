@@ -59,7 +59,7 @@ const DashboardPage = () => {
       {
         label: "Số lượng thiết bị",
         data: [stats.in_use, stats.broken, stats.maintenance],
-        backgroundColor: ["#28a745", "#ffc107", "#dc3545"],
+        backgroundColor: ["#28a745", "#dc3545","#ffc107"],
         hoverOffset: 10,
       },
     ],
@@ -74,8 +74,8 @@ const DashboardPage = () => {
         {[
           { title: "Tổng thiết bị", value: stats.total, bg: "bg-primary" },
           { title: "Đang sử dụng", value: stats.in_use, bg: "bg-success" },
-          { title: "Thiết bị hỏng", value: stats.broken, bg: "bg-warning" },
-          { title: "Chờ bảo trì", value: stats.maintenance, bg: "bg-danger" },
+          { title: "Thiết bị hỏng", value: stats.broken, bg: "bg-danger" },
+          { title: "Chờ bảo trì", value: stats.maintenance, bg: "bg-warning" },
         ].map((card, idx) => (
           <div className="col-md-3" key={idx}>
             <div className={`card text-white ${card.bg} shadow`}>

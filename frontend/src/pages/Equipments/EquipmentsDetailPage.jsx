@@ -91,7 +91,12 @@ export default function EquipmentsDetailPage() {
       toast.error(e.message || "Không tạo được lịch bảo trì");
     }
   };
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const totalPages = Math.ceil(schedules.length / rowsPerPage);
+  const indexOfLast = currentPage * rowsPerPage;
+  const indexOfFirst = indexOfLast - rowsPerPage;
+  const currentSchedules = schedules.slice(indexOfFirst, indexOfLast);
 
   const openEditModal = (schedule) => {
     setEditForm({
@@ -145,7 +150,6 @@ export default function EquipmentsDetailPage() {
 
   return (
     <div className="container py-3">
-      <ToastContainer position="top-right" autoClose={3000} />
       <div className="row g-3">
         {/* Thông tin thiết bị */}
         <div className="col-md-4">
@@ -191,7 +195,7 @@ export default function EquipmentsDetailPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {schedules.map(s => (
+                  {currentSchedules.map(s => (
                     <tr key={s.id}>
                       <td>
                         <Link
@@ -207,10 +211,22 @@ export default function EquipmentsDetailPage() {
                           : "-"}
                       </td>
                       <td className="text-capitalize">{s.status}</td>
-                      <td>{technicians.find(t => t.id === s.technician_id)?.username || "-"}</td>
                       <td>
-                        <button className="btn btn-sm btn-warning me-1" onClick={() => openEditModal(s)}>✏️Sửa</button>
-                        <button className="btn btn-sm btn-danger" onClick={() => openDeleteModal(s.id)}>🗑️ Xóa</button>
+                        {technicians.find(t => t.id === s.technician_id)?.username || "-"}
+                      </td>
+                      <td>
+                        <button
+                          className="btn btn-sm btn-warning me-1"
+                          onClick={() => openEditModal(s)}
+                        >
+                          ✏️ Sửa
+                        </button>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => openDeleteModal(s.id)}
+                        >
+                          🗑️ Xóa
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -219,7 +235,69 @@ export default function EquipmentsDetailPage() {
             ) : (
               <p className="mt-3">Chưa có lịch bảo trì.</p>
             )}
+            {/* ✅ Pagination trên table */}
+            {schedules.length > 0 && (
+              <div className="d-flex justify-content-end align-items-center mb-2">
+                {/* Dropdown chọn số dòng */}
+                <div className="me-3">
+                  <label className="me-2">Hiển thị</label>
+                  <select
+                    value={rowsPerPage}
+                    onChange={(e) => {
+                      setRowsPerPage(Number(e.target.value));
+                      setCurrentPage(1); // reset về trang 1
+                    }}
+                    className="form-select d-inline-block"
+                    style={{ width: "auto" }}
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                  </select>
+                  <span className="ms-2">
+                    bản ghi / trang. Tổng {totalPages} trang ({schedules.length} bản ghi)
+                  </span>
+                </div>
 
+                {/* Nút phân trang */}
+                <nav>
+                  <ul className="pagination mb-0">
+                    <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                      <button
+                        className="page-link"
+                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      >
+                        «
+                      </button>
+                    </li>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <li
+                        key={page}
+                        className={`page-item ${page === currentPage ? "active" : ""}`}
+                      >
+                        <button className="page-link" onClick={() => setCurrentPage(page)}>
+                          {page}
+                        </button>
+                      </li>
+                    ))}
+
+                    <li
+                      className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() =>
+                          setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                        }
+                      >
+                        »
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            )}
             {/* Form thêm */}
             <div className="mt-3 border-top pt-3">
               {!showForm && <button className="btn btn-success" onClick={() => setShowForm(true)}>➕ Thêm lịch</button>}
