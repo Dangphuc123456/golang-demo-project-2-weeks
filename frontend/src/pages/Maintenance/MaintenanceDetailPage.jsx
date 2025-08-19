@@ -9,6 +9,8 @@ import {
 } from "../../api/maintenanceApi";
 import { getTechnicians } from "../../api/technicianApi";
 import { getEquipments } from "../../api/equipmentApi";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function MaintenanceDetailPage() {
   const { id } = useParams();
@@ -47,12 +49,14 @@ export default function MaintenanceDetailPage() {
         setEquipments(equipmentList);
       } catch (err) {
         setError(err.message);
+        toast.error("Lỗi khi tải dữ liệu: " + err.message);
       } finally {
         setLoading(false);
       }
     }
     fetchData();
   }, [id]);
+
 
   const openAddModal = () => {
     setEditMode(false);
@@ -99,7 +103,7 @@ export default function MaintenanceDetailPage() {
     e.preventDefault();
 
     if (!formData.issue_description || !formData.repair_date) {
-      alert("Vui lòng nhập đầy đủ mô tả và ngày bảo trì!");
+      toast.error("Vui lòng nhập đầy đủ mô tả và ngày bảo trì!");
       return;
     }
 
@@ -111,12 +115,12 @@ export default function MaintenanceDetailPage() {
         technician_id: formData.technician_id ? Number(formData.technician_id) : null
       };
 
-      console.log("Payload gửi đi:", payload);
-
       if (editMode) {
         await updateRepairHistory(formData.id, payload);
+        toast.success("Cập nhật lịch sử bảo trì thành công!");
       } else {
         await createRepairHistory(id, payload);
+        toast.success("Thêm lịch sử bảo trì thành công!");
       }
 
       const data = await getMaintenanceById(id);
@@ -125,21 +129,20 @@ export default function MaintenanceDetailPage() {
 
       closeModal();
     } catch (err) {
-      alert("Lỗi: " + err.message);
+      toast.error("Lỗi: " + err.message);
     }
   };
 
   const handleDelete = async () => {
     try {
       await deleteRepairHistory(deleteId);
-
       const data = await getMaintenanceById(id);
       setMaintenance(data.maintenance);
       setHistory(Array.isArray(data.history) ? data.history : []);
-
+      toast.success("Xóa lịch sử bảo trì thành công!");
       closeDeleteModal();
     } catch (err) {
-      alert("Lỗi: " + err.message);
+      toast.error("Lỗi: " + err.message);
     }
   };
 

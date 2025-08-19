@@ -6,6 +6,8 @@ import {
   updateEquipment,
   deleteEquipment,
 } from "../../api/suppliersApi";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function SupplierDetailPage() {
   const { id } = useParams();
@@ -36,6 +38,7 @@ export default function SupplierDetailPage() {
         setSupplier(data);
       } catch (err) {
         setError(err.message);
+        toast.error("Lỗi khi tải nhà cung cấp: " + err.message);
       } finally {
         setLoading(false);
       }
@@ -55,7 +58,6 @@ export default function SupplierDetailPage() {
       id: equipment.id,
       name: equipment.name || "",
       price: equipment.price != null ? equipment.price.toString() : "",
-      // Giữ nguyên định dạng yyyy-mm-dd để input type=date hiển thị đúng
       purchase_date: equipment.purchase_date
         ? new Date(equipment.purchase_date).toISOString().slice(0, 10)
         : "",
@@ -69,17 +71,16 @@ export default function SupplierDetailPage() {
     const { name, price, purchase_date, status } = currentEquipment;
 
     if (!name || !price || !purchase_date || !status) {
-      alert("Vui lòng điền đầy đủ thông tin thiết bị");
+      toast.error("Vui lòng điền đầy đủ thông tin thiết bị");
       return;
     }
 
     const parsedPrice = parseFloat(price);
     if (isNaN(parsedPrice) || parsedPrice <= 0) {
-      alert("Giá phải là số lớn hơn 0");
+      toast.error("Giá phải là số lớn hơn 0");
       return;
     }
 
-    // Gửi luôn ISO string như add
     const payload = {
       name,
       price: parsedPrice,
@@ -94,6 +95,7 @@ export default function SupplierDetailPage() {
           ...prev,
           equipments: prev.equipments ? [...prev.equipments, added] : [added],
         }));
+        toast.success("Thêm thiết bị thành công!");
       } else {
         const updated = await updateEquipment(supplier.id, currentEquipment.id, payload);
         setSupplier((prev) => ({
@@ -102,10 +104,11 @@ export default function SupplierDetailPage() {
             eq.id === currentEquipment.id ? updated : eq
           ),
         }));
+        toast.success("Cập nhật thiết bị thành công!");
       }
       closeModal();
     } catch (err) {
-      alert(err.message);
+      toast.error("Lỗi: " + err.message);
     }
   };
 
@@ -117,15 +120,15 @@ export default function SupplierDetailPage() {
 
 
   const handleDeleteEquipment = async (equipmentId) => {
-    if (!window.confirm("Bạn có chắc muốn xóa thiết bị này?")) return;
     try {
       await deleteEquipment(supplier.id, equipmentId);
       setSupplier((prev) => ({
         ...prev,
         equipments: prev.equipments.filter((eq) => eq.id !== equipmentId),
       }));
+      toast.success("Xóa thiết bị thành công!");
     } catch (err) {
-      alert(err.message);
+      toast.error("Lỗi: " + err.message);
     }
   };
 
@@ -203,8 +206,8 @@ export default function SupplierDetailPage() {
                       <td style={{ padding: 8 }}>{new Date(eq.purchase_date).toLocaleDateString("vi-VN")}</td>
                       <td style={{ padding: 8, textTransform: "capitalize" }}>{eq.status}</td>
                       <td style={{ padding: 8 }}>
-                        <button onClick={() => openEditModal(eq)} style={{ backgroundColor: "#f39c12", border: "none", color: "white", padding: "6px 12px", cursor: "pointer", borderRadius: 4, marginRight: 8 }}>Sửa</button>
-                        <button onClick={() => handleDeleteEquipment(eq.id)} style={{ backgroundColor: "#c0392b", border: "none", color: "white", padding: "6px 12px", cursor: "pointer", borderRadius: 4 }}>Xóa</button>
+                        <button onClick={() => openEditModal(eq)} style={{ backgroundColor: "#f3c612ff", border: "none", color: "white", padding: "6px 12px", cursor: "pointer", borderRadius: 4, marginRight: 8 }}>✏️Sửa</button>
+                        <button onClick={() => handleDeleteEquipment(eq.id)} style={{ backgroundColor: "#c0392b", border: "none", color: "white", padding: "6px 12px", cursor: "pointer", borderRadius: 4 }}>🗑️Xóa</button>
                       </td>
                     </tr>
                   ))}
