@@ -8,7 +8,7 @@ chạy bằng lệnh go run ./cmd/main.go
 cd frontend-
 npm install //để cài các thư viện đang dùng
 chạy bằng lệnh npm run dev
-
+***http://localhost:5173/ chỉ hiển thị giao diện nhưng k có dữ liệu cần vào http://localhost:5173/login để đăng nhập lấy lên dữ liệu nhé*** 
 ***Các tài khoản đã đăng ký dùng được*** 
 dangphucvghy195@gmail.com  quyền admin -mật khẩu 12345678
 pvan585925@gmail.com       quyền technician -mật khẩu 12345678
@@ -129,5 +129,6 @@ CREATE TABLE repair_history (
 
 INSERT INTO repair_history VALUES
 (1,'2025-08-18','Trục máy bị hỏng vòng bi làm máy chạy bị đao',500000.00,2,'2025-08-17 10:49:57',1);
+
 
 
