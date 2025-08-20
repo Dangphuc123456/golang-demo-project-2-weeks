@@ -183,23 +183,30 @@ func UpdateMaintenanceHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteMaintenanceHandler(w http.ResponseWriter, r *http.Request) {
-    vars := mux.Vars(r)
-    maintenanceIDStr := vars["id"]
+	vars := mux.Vars(r)
+	maintenanceIDStr := vars["id"]
 
-    maintenanceID, err := strconv.Atoi(maintenanceIDStr)
-    if err != nil {
-        http.Error(w, "Invalid maintenance ID", http.StatusBadRequest)
-        return
-    }
+	maintenanceID, err := strconv.Atoi(maintenanceIDStr)
+	if err != nil {
+		http.Error(w, "Invalid maintenance ID", http.StatusBadRequest)
+		return
+	}
 
-    _, err = db.Exec(`DELETE FROM maintenance_schedules WHERE id=?`, maintenanceID)
-    if err != nil {
-        http.Error(w, "Database error: "+err.Error(), http.StatusInternalServerError)
-        return
-    }
+	_, err = db.Exec("DELETE FROM repair_history WHERE maintenance_id = ?", maintenanceID)
+	if err != nil {
+		http.Error(w, "Failed to delete repair history: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-    w.WriteHeader(http.StatusNoContent)
+	_, err = db.Exec("DELETE FROM maintenance_schedules WHERE id = ?", maintenanceID)
+	if err != nil {
+		http.Error(w, "Failed to delete maintenance schedule: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
+
 
 func GetMaintenanceDetailHandler(w http.ResponseWriter, r *http.Request) {
     idStr := mux.Vars(r)["id"]

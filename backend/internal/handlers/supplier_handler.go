@@ -95,20 +95,46 @@ func UpdateSupplier(w http.ResponseWriter, r *http.Request) {
 
 func DeleteSupplier(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	id, err := strconv.Atoi(params["id"])
+	supplierID, err := strconv.Atoi(params["id"])
 	if err != nil {
 		http.Error(w, "Invalid supplier ID", http.StatusBadRequest)
 		return
 	}
 
-	_, err = db.Exec("DELETE FROM suppliers WHERE id=?", id)
+	_, err = db.Exec(`
+		DELETE rh FROM repair_history rh
+		JOIN maintenance_schedules ms ON rh.maintenance_id = ms.id
+		JOIN equipments e ON ms.equipment_id = e.id
+		WHERE e.supplier_id = ?`, supplierID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to delete repair history: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent) 
+	_, err = db.Exec(`
+		DELETE ms FROM maintenance_schedules ms
+		JOIN equipments e ON ms.equipment_id = e.id
+		WHERE e.supplier_id = ?`, supplierID)
+	if err != nil {
+		http.Error(w, "Failed to delete maintenance schedules: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = db.Exec("DELETE FROM equipments WHERE supplier_id = ?", supplierID)
+	if err != nil {
+		http.Error(w, "Failed to delete equipments: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = db.Exec("DELETE FROM suppliers WHERE id = ?", supplierID)
+	if err != nil {
+		http.Error(w, "Failed to delete supplier: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
+
 type Supplier struct {
   ID         int          `json:"id"`
   Name       string       `json:"name"`

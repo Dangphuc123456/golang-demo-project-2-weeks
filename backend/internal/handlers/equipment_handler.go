@@ -117,9 +117,24 @@ func UpdateEquipment(w http.ResponseWriter, r *http.Request) {
 func DeleteEquipment(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 
-	_, err := db.Exec("DELETE FROM equipments WHERE id=?", id)
+	_, err := db.Exec(`
+		DELETE rh FROM repair_history rh
+		JOIN maintenance_schedules ms ON rh.maintenance_id = ms.id
+		WHERE ms.equipment_id = ?`, id)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, "Failed to delete repair history: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = db.Exec("DELETE FROM maintenance_schedules WHERE equipment_id=?", id)
+	if err != nil {
+		http.Error(w, "Failed to delete maintenance schedules: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = db.Exec("DELETE FROM equipments WHERE id=?", id)
+	if err != nil {
+		http.Error(w, "Failed to delete equipment: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
